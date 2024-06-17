@@ -482,8 +482,146 @@ Just Focus logic, automate configuration itself - AutoConfig
     Framework must take care of configuration based on various conditions like
  i want web and jpa , messaging.
                         "Birth of Spring Boot"
+....................................................................................
+				Spring Project Setup 
+	    
+
+What are the required components to setup Spring Project.
+
+1.IDE,mvn,java
+
+2.Project layout
+
+Spring Project requires
+
+Infra Structure:
+ 1.Project libraries
+ 2.Project Configurations
+
+Application Structure
+
+1.Application code
+2.assets - imgs,docs
+3.App Configuration
+
+mvn or gradle
+
+.............................................................................................
+				    Spring Project Creations
+.....................................................................................
+
+Whether you build app using Boot or Old Spring Framework Two things you have to take care
+
+1.Project Dependency -  Libraries- core,web,data,cloud,logger....
+  You have to manage
+  Spring have to manage - Boot via starters
+
+2.Application Configuration
+   -Bean defintions -  xml, or javaconfig- manual/auto(spring boot)
+
+Spring Project Using Spring Framework method:
+.............................................
+
+XML based project:
+.................
 
 
+Steps:
 
+1.create Plain Maven Project and spring dependency.
+
+
+2.pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>springcore</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.9</version>
+        </dependency>
+    </dependencies>
+
+</project>
+
+....................................................................................
+			 Object creations without spring
+.....................................................................................
+.....................................................................................
+			 Object creations without spring
+.....................................................................................
+
+Declare Bean:
+package com.ibm.spring.core.beans;
+
+public class Customer {
+    private int id;
+    private String name;
+
+    public Customer() {
+    }
+
+    public Customer(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+Declare Main class and Create Object;
+.....................................
+
+package com.ibm.spring.core.beans;
+
+public class ObjectCreationWithoutSpring {
+    public static void main(String[] args) {
+        //create object
+        Customer customer = new Customer();
+        //populate data : via setters
+        customer.setId(1);
+        customer.setName("Subramanian Murugan");
+
+        //read Data : via getters
+        System.out.println(customer.getId() + " " + customer.getName());
+
+        //via constructor how to initialize object
+        customer = new Customer(2, "Murugan");
+        System.out.println(customer.getId() + " " + customer.getName());
+
+    }
+}
+
+here 
+=> we create objects
+=> we popuplate data via setters and constructors.
 
 
