@@ -1,0 +1,489 @@
+.....................................................................................
+			   Spring Framework && Spring Boot
+.....................................................................................
+
+What is Spring Framework?
+
+  Spring is Java Framework to build "enterprise distributed application"
+
+Types of application:
+.....................
+
+=>Desktop application
+   Desk apps built for standalone desktops eg ..notpad,word,excel
+
+=>Network based application
+   Apps runs in the remote machine and accessed that apps via network.
+
+ =>Client Server Arch
+	Application has three major layer(tier)
+    ->Data Layer -Where we store data
+    ->Biz layer - Where we process data
+    ->Presentation Layer - Where we present  data
+
+History of client and server:
+
+->Mainframe based arch : The first network based application
+->Layered Client server arch without mainframeworks
+
+  ->Single/One tier client server - >Both storage and biz processing kept in single 				      machine,where as ui layer is kept separately.
+
+  ->Two/tier client server
+        Database/Storage layer is separated, biz processing layer is kept in one 	      machine, and ui also kept in the same machine.
+
+  ->Three tier client server 
+	Data layer , Biz processing layer, Ui layer is kept in different machines
+
+->N-tier client server 
+      Data Layer
+      Biz processing layer
+	->MOM Layer - Message oriented middlware -
+        ->Rpc layer - Remote Procedure call-app to app interaction.
+        ->Integration layer - ESB (Enterprise Service Bus)
+    Each layer can be kept in different and different machines , each layer can communicate over network using its own networking protocals
+
+
+How to build distributed apps?
+   You can build distributed applications in any technology like "java",".netnet",php,python,node.js,.....
+
+
+Distributed application types:
+..............................
+Now a days distributed apps are built using various patterns.
+
+1.Monolithic Architecture pattern
+    Legacy way of building "distributed apps"
+2.Microservice Architecture pattern
+    Modern way of building "distributed apps"
+
+
+         Since Spring is Distribtued java App framework
+	   We can build "Mononlolithic" and also we can 
+	    build "Microservices" based apps.
+
+			Spring
+			  |
+	  ------------------------------------------------
+          |                                              |
+    Monolothic                                     Microserivces
+
+As a java developer, I need to know what are the concepts available to start 
+building Monololithic apps in Spring.
+
+1.Spring core Framework & Boot
+2.Spring Data 
+3.Api Development using webservices - Rest / Soap
+4.Integration /MOM using Rabbitmq or Kafka....
+
+
+As a java developer, I need to know what are the concepts available to start 
+building Microservices apps in Spring.
+
+
+1.Spring core Framework & Boot
+2.Spring Data 
+3.Api Development using webservices - Rest / Soap
+4.Integration /MOM using Rabbitmq or Kafka....
+5."Spring Cloud"- framework which provides all infrastructure
+  to build Microservices based distributed apps.
+6.Dev ops
+7.Cloud Technologies
+
+....................................................................................
+			 History Of Spring Framework
+....................................................................................
+
+Early 2000,Java become very popular for building distributed Applications.
+
+Java Technology Types:
+
+1.JSE 
+   -Core java programming language
+2.JEE
+  -Building distributed apps 
+3.JME
+  -Device apps like mobile
+...................................................
+JCP - Java Community Process
+ Who standarize the entire Java Technology.
+
+Java works based on Specification,
+   Rules and regualations how things are working.
+
+JSE - How java programming language works
+JVM - How Java vm can be implementated.
+
+....................................................................................
+                             JEE -Enterprise Specification
+.....................................................................................
+
+JEE Platform spec : containers /app containers/tools
+
+1.Web Technology spec
+ Java servlet
+ JSP
+ JSF
+ Websocket
+ JSTL
+ EL
+2.Enterprise Application spec
+EJB
+JPA -ORM
+JMS
+JTA
+DI
+Context and DI
+Concurrency Util
+
+3.Web Services
+
+SOAP based  -JAX-WS
+REST Based  -JAX-RS
+
+4.Management and Security technologies
+........................................
+Java EE Security spec
+Java Auth
+Java authorzation
+JAVA EE additional spec
+JMX -Jmeter
+
+...................................................................................
+		   Complixty of JEE Spec and implementation
+.....................................................................................
+
+JEE enterprise/distributed application:
+......................................
+
+Client Layer         Web Layer      Biz layer      Data Layer/Persistency
+
+Browser             Servlet/JSP      EJB               EJB - Entity Beans
+
+
+EJB :Enterprise Java Bean
+  Java Object(bean) can support distributed biz operations
+eg: incase of shopping cart
+  I have a bean(java object) which has three apis addToCart,Checkout,Payment
+
+Api classifications:
+1.Session Bean  - to represent biz logic---jdbc--dml
+2.Enitity bean  -ORM - Object to Table mapping-First orm solution---Hibernate
+3.Message Driven Bean - Message driven systems-RabbitMQ,JMS
+
+Rod johnson  was working in enterprise banking application with jee, he faced lot of 
+complexity in designing ejb driven systems, so he decided to move out ejb from JEE application, he wrote book called expert  J2EE Development without EJB.
+
+
+He proposed a model  that model later on came as The project in "Spring Season" - Spring Framework.
+
+Client Layer         Web Layer      Biz layer               Data Layer/Persistency
+
+Browser             Spring MVC     Spring Services          Spring-orm - Spring-								    data
+
+Spring development objective is "POJO". (Plain Old Java Object)
+
+When you build enterprise java apps, no plumbing(bolier plate code),Spring framework takes care that plumbing.
+
+Java is Object Oriented Programming language.
+
+Apps built on java collection of objects.
+
+Object Oriented Principles:
+...........................
+
+1.Abstraction
+2.Encapsulation
+3.Hierarchy
+4.Typing
+5.Modularity
+----------------------
+6.Concurrency
+7.Persistency
+.....................................................................................
+   		  1.Object Management :Hierarchy
+.....................................................................................
+
+Object Relationship
+
+-HAS-A -  Composition
+-IS-A - Inheritance
+
+Enterprise application challanges:
+
+1.Object Management
+
+class Order {
+   Product product
+}
+
+class Customer{
+   Order order
+}
+
+class Product {
+  Item item
+}
+class Item {
+
+}
+
+Customer information
+ ->Order
+     -Product
+        -Item
+
+You have to create Object for every class
+You have to pass object reference to every Object - HAS-A
+
+new Customer(new Order(new Item()))
+...................................................................................
+			IOC : Inversion of Control
+....................................................................................
+In enterprise application object creation and linking objects are so complex that should be removed from the developer.
+
+Someone should take care object creation and linking= 
+  =>This process is called as IOC.
+The IOC suggest the automation program,that program called as IOC Container.
+
+Management - creating object and mainitain its relationship references
+		-developer via code
+
+Do Opposit - Dont create object , dont management object life cycle
+   IOC
+Some body has to create objects and manage its relationship - "Automated Program"
+   -IOC Container
+
+ioc container implementation:
+ -Spring framework provides at core ioc container - Spring Context
+
+
+Spring framework is "java Application" which is used to build java distributed app.
+Spring takes care of creating "objects and links those objects" -IOC Container.
+
+....................................................................................
+.....................................................................................
+			Spring Application
+.....................................................................................
+   The application is written in java technology, executed on Spring Container which is runtime for spring applications.spring container runs on jvm
+
+
+			  Spring Application
+				 |
+			   Spring Container
+				 |
+				JVM
+
+What is framework?
+   One Stop Solution
+ Collection of tools and technologies provided in one place to build end to end applications mostly.
+  
+  
+What spring framework offers?
+
+ Spring offers collection of many projects.
+
+1.Core:
+IoC container,
+Events, 
+Resources, 
+i18n,
+Validation,
+Data Binding,
+Type Conversion, 
+SpEL,
+AOP.
+
+2.Spring MVC
+3.Spring cloud
+etc....
+https://spring.io/projects/
+
+....................................................................................
+				Spring Core principle
+.....................................................................................
+
+Make Java enterprise distributed application easy way.
+
+=>IOC and Dependency Injection
+     -How to create objects and how to link objects.
+
+
+
+Spring Provides
+
+1.Application code
+   classes which expose biz logic and apis - written by developer
+
+2.Infrastructure code - provided by framework
+  creating objects
+  initalization dependencies
+
+Spring takes care of infra code, as where developer takes care of app code.
+
+Object Creation In spring:
+.........................
+ In Spring Object creation and linking objects must be separated from the developer
+ 	-IOC and DI
+
+
+For implementing IOC and DI, spring offers three technique
+
+Spring is based on Configurtion:
+
+Three types of configuration:
+
+1.XML driven - old way of configuration
+2.Java Config Driven - after xml
+3.Boot Driven - highly automated configuration system.
+
+We are going to see all types of configuration...
+
+
+.....................................................................................
+				   Tools For Spring Application Development
+....................................................................................
+
+Spring Versions and features
+
+2004 - Spring Framework 1.0 released
+– Champions dependency injection
+– Encourages POJOs
+– Uses XML files to describe application
+  configuration
+– Becomes popular quickly alternate to an EJB
+
+• Spring 2.0 (2006):
+ – XML simplification, async JMS, JPA, AspectJ support
+
+• Spring 2.5 (2007, last release 2.5.6)
+  – Requires Java 1.4+ and supports JUnit 4
+  – Annotation DI, @MVC controllers, XML namespaces
+
+• Spring 3.x (3.2.17 released July 2013)
+
+   – Environment & Profiles, @Cacheable, @EnableXXX …
+   – Requires Java 1.5+ and JUnit 4.7+
+   – REST support, JavaConfig, SpEL, more annotations
+
+• Spring 4.x (released Dec 2016)
+    – Support for Java 8, @Conditional, Web-sockets
+....................................................................................
+
+• Spring 5.x (2017) - Spring Boot
+  MicroService driven Dev features
+   – Reactive programming focus
+   - Functional Programming
+   - Cloud Functionality
+   - Container support
+
+• Spring 6.x (2023)
+   -Java 11 and 17 LTS support
+   -Only improvments and bug fixing
+
+Spring Boot:
+  Springboot was available inside Spring Framework 5.x 
+  later it became independant project
+  Now days only Spring boot is defacto standard for configuring spring applications
+  
+  Spring boot 3.1 is new Spring Boot Release
+
+...................................................................................
+				Spring Core Concepts
+....................................................................................
+
+Spring Core Concepts:
+
+1.Spring Bean
+
+What is Bean?
+   
+  Bean is terminallogy coined by SUN Micro System to name java object.
+
+Object vs Bean?
+
+ -Same but Bean has some special characteristics  which was proposed by SUN micro system via "Java Bean Spec".
+
+It is java class, based Java Bean standards
+ 	-class should be public
+ 	-properties should be private
+ 	-set and get methods - Accessors and mutators
+	-constructors
+
+Why Bean Spec?
+  - in order to standarize the java dev process- Coding Standards.
+
+public class Customer {
+  private  int id;
+  private String name;
+}
+    "Spring  follows java bean spec in order to create object and links objects"
+
+
+class CustomerService {
+
+   private CustomerRespository rep;
+
+   CustomerService(){
+
+   }
+   set /get
+
+}
+class CustomerRespository{
+
+
+}
+
+Spring Bean is Java Object follows Bean Specification and also managed by Spring Container.
+
+....................................................................................			  	 Spring Bean Creation(Object)
+.....................................................................................
+
+
+Who creates Spring Beans?
+
+ -Spring Container
+
+ Spring container is java object, which manages object(bean) life cycle like   create,use,destroy.
+
+How spring beans are created?
+
+-> you must have bean definitions outside application biz logic
+-> sp container reads that bean definitions, initalizes the beans.
+
+
+Architecture:
+
+			POJO Classes(Bean)
+				 |
+    Spring-Application <====>SpringContainer
+      config file		 |
+		       Fullyconfigured System
+
+
+Spring Bean Definitions(file) instructs Spring Container how to create objects(order of creations) and how to link (DI) objects
+
+....................................................................................
+			Spring Application Configuration Management
+.....................................................................................
+Spring Application can be configured in many ways
+
+1.XML files  -  Old and Legacy.
+
+2.Java Config + Annotations -Modern way
+
+  2.1 Java Config -Manual - Write Configuration and logic
+
+   Here Dev need to write Configuration and biz logic , which makes app dev slower.
+
+Just Focus logic, automate configuration itself - AutoConfig
+
+3.AutoConfig:
+    Framework must take care of configuration based on various conditions like
+ i want web and jpa , messaging.
+                        "Birth of Spring Boot"
+
+
+
+
+
