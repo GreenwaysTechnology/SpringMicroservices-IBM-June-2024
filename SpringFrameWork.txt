@@ -34,7 +34,7 @@ History of client and server:
   ->Three tier client server 
 	Data layer , Biz processing layer, Ui layer is kept in different machines
 
-->N-tier client server 
+  ->N-tier client server 
       Data Layer
       Biz processing layer
 	->MOM Layer - Message oriented middlware -
@@ -561,9 +561,6 @@ Steps:
 ....................................................................................
 			 Object creations without spring
 .....................................................................................
-.....................................................................................
-			 Object creations without spring
-.....................................................................................
 
 Declare Bean:
 package com.ibm.spring.core.beans;
@@ -623,5 +620,374 @@ public class ObjectCreationWithoutSpring {
 here 
 => we create objects
 => we popuplate data via setters and constructors.
+.....................................................................................
 
+package com.ibm.spring.core.beans;
+
+public class GreeterService {
+
+    public String sayHello(){
+        return "Hello";
+    }
+}
+package com.ibm.spring.core.beans;
+
+public class ObjectCreationWithoutSpring {
+    public static void main(String[] args) {
+        GreeterService greeterService = new GreeterService();
+        System.out.println(greeterService.sayHello());
+    }
+}
+.....................................................................................
+			 Spring and Object Creation
+..................................................................................
+
+In order to create object by spring, we need a configuration system.
+
+1.XML based configuration- very very old-nobody is using today, but which is foundation for modern spring configuration(auto-spring boot)
+
+2.java config - new way of configuration used today- auto config.
+
+
+XML based configuration:
+1.config xml
+
+place beans.xml in the class path - resources/beans.xml
+
+Template:
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+</beans>
+....................................................................................
+
+src/resources/beans.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--    Bean definition-->
+    <bean id="greeterService" class="com.ibm.spring.core.beans.GreeterService"/>
+
+</beans>
+package com.ibm.spring.core.beans.xml;
+
+import com.ibm.spring.core.beans.GreeterService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class GreeterSpringBean {
+    public static void main(String[] args) {
+        //initialize the spring container by reading beans.xml file
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        //Beans are created already by spring container, get the bean from the container
+        GreeterService greeterService = context.getBean(GreeterService.class);
+        //Use the bean
+        System.out.println(greeterService.sayHello());
+
+    }
+}
+...........
+
+beans.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+   <bean id="customer" class="com.ibm.spring.core.beans.Customer">
+
+   </bean>
+
+</beans>
+
+create customer object
+
+Object creation and get properties
+
+package com.ibm.spring.core.beans.xml;
+
+import com.ibm.spring.core.beans.Customer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class CustomerSpringBean {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        Customer customer = context.getBean(Customer.class);
+        customer.setId(1);
+        customer.setName("Subramanian");
+        System.out.println(customer.getId() + customer.getName());
+
+    }
+}
+.....................................................................................
+		 How to initalize the properties inside beans.xml
+
+...................................................................................
+			 Depedency Injection
+
+
+What is dependency Injection?
+
+  Linking objects
+  Setting Object Property values
+  Setting Object references with Object who refers it.
+
+Dependency Injection on reference types and Primitives.
+
+class Customer {
+   private int id - primtive - Dependency
+   private Order order - Reference type - Dependency
+}
+
+
+Types of DI:
+1.Setter
+    Linking objects and properties after objects created
+2.Constructor
+    Linking objects, During object creation.
+3.Field Injection
+   Linking objects after Creation
+
+
+
+Setter Injection
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="customer" class="com.ibm.spring.core.beans.Customer">
+        <!--      setter injection-->
+        <property name="id" value="10"/>
+        <property name="name" value="Subramanian Murugan"/>
+    </bean>
+
+</beans>
+
+
+package com.ibm.spring.core.beans.xml;
+
+import com.ibm.spring.core.beans.Customer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class CustomerSpringBean {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        Customer customer = context.getBean(Customer.class);
+        System.out.println(customer);
+
+    }
+}
+.....................................................................................
+
+Constructor injection:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="greeterService" class="com.ibm.spring.core.beans.Customer">
+        <constructor-arg name="id" value="13"/>
+        <constructor-arg name="name" value="Subramanian Murugan"/>
+    </bean>
+
+</beans>
+package com.ibm.spring.core.beans.xml;
+
+import com.ibm.spring.core.beans.Customer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class CustomerSpringBean {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        Customer customer = context.getBean(Customer.class);
+        System.out.println(customer);
+
+    }
+}
+When to use Setter vs Constructor?
+
+Note: 
+ Constructor properties are initlized during object creations
+ Settter properties are initlized after object creations
+
+Spring supports both.You can mix and match.
+
+
+Constructors:
+  ->Enforce mandatory dependencies
+
+Setters:
+ 1.Allow optional dependenices
+
+
+Setter and constructor injections can be done with primtive data types and reference types
+
+.....................................................................................
+
+Reference Type:
+ both setter and constructor injections
+
+beans.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="product" class="com.ibm.spring.core.beans.xml.reference.Product">
+        <constructor-arg name="productId" value="1"/>
+        <constructor-arg name="name" value="Phone"/>
+    </bean>
+<!--    <bean id="order" class="com.ibm.spring.core.beans.xml.reference.Order">-->
+<!--        &lt;!&ndash;        constructor injection &ndash;&gt;-->
+<!--        <constructor-arg name="orderId" value="1000"/>-->
+<!--        <constructor-arg name="ordervalue" value="2345.683434"/>-->
+<!--        <constructor-arg name="product" ref="product"/>-->
+
+<!--    </bean>-->
+
+    <bean id="order" class="com.ibm.spring.core.beans.xml.reference.Order">
+        <!--        setter injection -->
+        <property name="orderId" value="1000"/>
+        <property name="ordervalue" value="2345.683434"/>
+        <property name="product" ref="product"/>
+
+    </bean>
+
+
+</beans>
+
+package com.ibm.spring.core.beans.xml.reference;
+
+public class Order {
+    private int orderId;
+    private double ordervalue;
+
+    private Product product ;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderId=" + orderId +
+                ", ordervalue=" + ordervalue +
+                ", product=" + product +
+                '}';
+    }
+
+    public Order(int orderId, double ordervalue, Product product) {
+        this.orderId = orderId;
+        this.ordervalue = ordervalue;
+        this.product = product;
+    }
+
+    public Order() {
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public double getOrdervalue() {
+        return ordervalue;
+    }
+
+    public void setOrdervalue(double ordervalue) {
+        this.ordervalue = ordervalue;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+}
+package com.ibm.spring.core.beans.xml.reference;
+
+public class Product {
+
+    private  int productId;
+    private String name;
+
+    public Product() {
+    }
+
+    public Product(int productId, String name) {
+        this.productId = productId;
+        this.name = name;
+    }
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId=" + productId +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+
+
+package com.ibm.spring.core.beans.xml.reference;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class ReferenceTypeInjection {
+    public static void main(String[] args) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        Order order=context.getBean(Order.class);
+        System.out.println(order);
+
+    }
+}
+
+.....................................................................................
+				Dependency Injection values
+
+1.You can inject primitives values- int,float,string,char,boolean
+2.You can inject objects -Customer ,Address
+3.You can inject list - Collections,Map,List,Set
+.....................................................................................	
+
+Assigment -1:
+
+Create Subject and Instructor Objects accorindly , populate data accordingly using setter and constructor injection...
+.....................................................................................
 

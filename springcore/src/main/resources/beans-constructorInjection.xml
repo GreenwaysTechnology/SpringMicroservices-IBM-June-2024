@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="greeterService" class="com.ibm.spring.core.beans.Customer">
+        <constructor-arg name="id" value="13"/>
+        <constructor-arg name="name" value="Subramanian Murugan"/>
+    </bean>
+
+</beans>
