@@ -6,7 +6,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ReferenceTypeInjection {
     public static void main(String[] args) {
 
-        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans-referenceInjection.xml");
         Order order=context.getBean(Order.class);
         System.out.println(order);
 

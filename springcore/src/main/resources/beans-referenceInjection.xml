@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="product" class="com.ibm.spring.core.beans.xml.reference.Product">
+        <constructor-arg name="productId" value="1"/>
+        <constructor-arg name="name" value="Phone"/>
+    </bean>
+<!--    <bean id="order" class="com.ibm.spring.core.beans-referenceInjection.xml.reference.Order">-->
+<!--        &lt;!&ndash;        constructor injection &ndash;&gt;-->
+<!--        <constructor-arg name="orderId" value="1000"/>-->
+<!--        <constructor-arg name="ordervalue" value="2345.683434"/>-->
+<!--        <constructor-arg name="product" ref="product"/>-->
+
+<!--    </bean>-->
+
+    <bean id="order" class="com.ibm.spring.core.beans.xml.reference.Order">
+        <!--        setter injection -->
+        <property name="orderId" value="1000"/>
+        <property name="ordervalue" value="2345.683434"/>
+        <property name="product" ref="product"/>
+
+    </bean>
+
+
+</beans>

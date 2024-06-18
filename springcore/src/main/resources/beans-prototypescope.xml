@@ -4,7 +4,9 @@
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="database" class="com.ibm.spring.core.beans.xml.lifecycles.DatabaseConnection" init-method="init"
-          destroy-method="destroy"/>
+    <!--    create bean via factory-->
+    <bean id="helloService" class="com.ibm.spring.core.beans.xml.scopes.HelloService" scope="prototype"/>
+
+
 
 </beans>
