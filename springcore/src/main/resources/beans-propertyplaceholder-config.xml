@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
+
+    <!--    ProperyPlaceHolderConfigurer bean-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations" value="classpath:application.properties"/>
+    </bean>
+    <bean id="customer" class="com.ibm.spring.core.beans.xml.extensions.property.Customer">
+        <property name="id" value="${customer.id}"/>
+        <property name="name" value="${customer.name}"/>
+    </bean>
+</beans>
