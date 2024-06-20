@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 
 //<beans> ==@Configuration
 @Configuration
-@Import({HelloConfig.class, OrderConfig.class, ProductConfig.class})
+//@Import({HelloConfig.class, OrderConfig.class, ProductConfig.class})
 public class AppConfig {
     //    <bean id="hello" class="com.ibm.spring.javaconfig.config.HelloService/>
 //    @Bean
