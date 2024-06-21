@@ -2837,7 +2837,7 @@ Spring Boot  starters reduces build dependency - POM Dependencies/project depend
    Spring boots provides execuatble jar / fat jar /uber jar.	
 
 3.Provide opinionated 'starter' dependencies to simplify your build configuration
-     Looks like profie based configuration which is applied even for pom dependencies
+     Looks like profile based configuration which is applied even for pom dependencies
 
 4.Automatically configure Spring and 3rd party libraries whenever possible
     Via autoconfiguration and class path scanning.
@@ -2846,7 +2846,7 @@ Provide production-ready features such as metrics, health checks, and externaliz
 
 How to begin with spring boot application?
 
-YOu can create standalone spring boot app 
+You can create standalone spring boot app 
 YOu can create web spring boot app
 
 
@@ -3050,8 +3050,6 @@ if Mysql dependency (driver jar) in the build path
 
 https://reflectoring.io/spring-boot-conditionals/
 
-Implmentation: Conditional:
-............................
 Implmentation: Conditional:
 ............................
 package com.ibm.springbootbasics.config;
@@ -3383,7 +3381,7 @@ public class Address {
     }
 }
 .....................................................................................
-		Command Line Runner Interface
+		         Command Line Runner Interface
 ....................................................................................
 
 CommandLineRunner interface is used to initalize the some data during app start up,
@@ -3452,6 +3450,433 @@ public class CLRMain implements CommandLineRunner {
     }
 }
 ....................................................................................
-			 Functional style
+	 Functional style - Using java 8 functional programming concepts
 ....................................................................................
+Functional Style:
+package com.ibm.springbootbasics.config;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class CommandLineInterfaceFunctionalStyle {
+    public static void main(String[] args) throws Exception {
+        var context = SpringApplication.run(CommandLineInterfaceFunctionalStyle.class);
+
+//        var r=new CommandLineRunner() {
+//            @Override
+//            public void run(String... args) throws Exception {
+//                System.out.println("something is initalized");
+//               System.out.println(args);
+//            }
+//        };
+//        r.run("hello , run");
+//        new CommandLineRunner() {
+//            @Override
+//            public void run(String... args) throws Exception {
+//                System.out.println("something is initalized");
+//                System.out.println(args);
+//            }
+//        }.run();
+        //r.run("hello , run");
+        ((CommandLineRunner) args1 -> {
+            System.out.println("something is initalized");
+            System.out.println(args1);
+        }).run();
+
+    }
+}
+
+.....................................................................................
+		Higher order function pattern-Return Function
+.....................................................................................
+package com.ibm.springbootbasics;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class CommandLineInterfaceHOF {
+    public static void main(String[] args) {
+        var context = SpringApplication.run(CommandLineRunnerSeparate.class);
+        try {
+            runner().run("");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //separate method
+    public static CommandLineRunner runner() {
+//        return new CommandLineRunner() {
+//            @Override
+//            public void run(String... args) throws Exception {
+//                System.out.println("runner is initialized");
+//            }
+//        };
+        //lambda version
+        return args -> System.out.println("runner is initialized");
+    }
+}
+.....................................................................................
+	 CommandLineRunner interface ,functional Style,automated bean creations
+....................................................................................
+
+    public static CommandLineRunner runner() {
+
+        //lambda version
+        return args -> System.out.println("runner is initialized");
+    }
+
+      public static void main(String[] args) {
+        var context = SpringApplication.run(CommandLineRunnerSeparate.class);
+        try {
+            runner().run("");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+In the above pattern, run method need to be called...
+
+package com.ibm.springbootbasics;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Bean;
+
+public class CommandLineRunnerBean {
+    public static void main(String[] args) {
+        var context = SpringApplication.run(CommandLineRunnerBean.class);
+
+    }
+
+    @Bean
+    public CommandLineRunner runner() {
+        return args -> System.out.println("Bean runner is initialized");
+    }
+}
+.....................................................................................
+			How to access application.properties 
+....................................................................................
+	
+In order to define properties, just add properties in application.properties
+
+Types of properties:
+
+1.Spring framework properties
+2.Application properties 
+
+Properties synatx:
+
+propertyName.PropertyName = value..
+
+1.Spring framework properties
+
+spring.application.name=myapp
+
+2.Application properties
+
+users.name=Subramanian
+users.message=Hello
+
+eg:
+src/resources/application.properties
+spring.application.name=myapp
+
+users.name=Subramanian
+users.message=Hello
+
+package com.ibm.spring.boot.properties;
+
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+
+    @Value("${users.name}")
+    private String userName;
+    @Value("${users.message}")
+    private String message;
+
+    public String sayHello() {
+        return message + " " + userName;
+    }
+}
+package com.ibm.spring.boot.properties;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+
+@SpringBootApplication
+public class SimplePropertyMain {
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context=SpringApplication.run(SimplePropertyMain.class);
+        UserService userService = context.getBean(UserService.class);
+        System.out.println(userService.sayHello());
+    }
+}
+.....................................................................................
+             Reading Properties via "Environment" Object
+....................................................................................
+
+package com.ibm.springbootbasics.properties;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Greeter {
+
+    @Value("${greeter.message}")
+    private String message;
+
+    @Value("${greeter.name}")
+    private String name;
+
+    @Autowired
+    private Environment environment;
+
+    public String getMessage() {
+        return message + name;
+    }
+
+    public String getInfo() {
+        return environment.getProperty("greeter.message", "Hey");
+    }
+}
+application.properties
+spring.application.name=springbootbasics
+
+#Custom application properties
+greeter.message=Hello
+greeter.name=Subramanian Murugan
+
+
+@Value vs Environment:
+......................
+
+@Value annotation is used to read value from application.properties ,if property does not , it will throw error.
+
+Environment is used to read value from application.properties, if property does not exits, we can provide default value.
+....................................................................................
+....................................................................................
+	  Isloating properties into separate class inject Where ever you want
+....................................................................................
+
+
+application.properties
+#property category
+app.name=MyApp
+app.author=Ibm
+app.version=1.1.0
+app.type=webapp
+
+package com.ibm.springbootbasics.properties;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "app")
+public class AppConfiguration {
+
+    private String name;
+    private String author;
+    private String version;
+    private String type;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}
+
+package com.ibm.springbootbasics.properties;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Greeter {
+
+    @Value("${greeter.message}")
+    private String message;
+
+    @Value("${greeter.name}")
+    private String name;
+
+    @Autowired
+    private Environment environment;
+
+    //Inject Configuration class
+    @Autowired
+    private AppConfiguration appConfiguration;
+
+    public String getMessage() {
+        return message + name;
+    }
+
+    public String getInfo() {
+        return environment.getProperty("greeter.message", "Hey");
+    }
+
+    public String getConfig() {
+        return appConfiguration.getName() + " " + appConfiguration.getAuthor();
+    }
+}
+.....................................................................................
+			Reading Properties within Property file
+.....................................................................................
+spring.application.name=springbootbasics
+
+#Custom application properties
+greeter.message=Hello
+greeter.name=Subramanian Murugan
+
+#property category
+app.name=${spring.application.name}
+app.author=Ibm
+app.version=1.1.0
+app.type=webapp
+
+Based on "Spel" Spring Expression language
+.....................................................................................
+			   YAML Config
+.....................................................................................
+
+
+.properites - extension invented by SUN microsystem for java application configuration
+.tmp - windows config file
+.xml  - web configuration/andorid
+etc...
+
+.yml or yaml - it is modern configuration file format..
+ yaml is more popular in dev ops env- kubenets,ansible,cloud
+
+Spring supports yml file format.
+
+
+In projects you can mix and match or single format...
+
+application.yml or application.yaml
+....................................................................................
+
+				YAML Config
+....................................................................................
+
+YAML is most popular in  dev ops env, like kubernates,ansibal,cloud....
+
+Spring by default supports yaml.
+
+Spring community recommends yaml format mostly..
+
+In projects you can mix and match or single format...
+
+application.yml or application.yaml
+
+How to read yaml properties?
+
+Using @Value annotation
+Using Environment
+Using @ConfigProperties
+
+resources/application.yml
+
+project:
+  name : SpringBoot
+  author: IBM
+
+
+package com.ibm.springbootbasics.yaml;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Project {
+
+    @Value("${project.name}")
+    private  String name;
+
+    public String getName(){
+        return  name;
+    }
+}
+package com.ibm.springbootbasics.yaml;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class YamlMain {
+    public static void main(String[] args) {
+        var context = SpringApplication.run(YamlMain.class);
+        var project = context.getBean(Project.class);
+        System.out.println(project.getName());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
