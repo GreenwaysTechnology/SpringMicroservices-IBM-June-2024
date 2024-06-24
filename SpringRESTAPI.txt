@@ -974,27 +974,55 @@ public class Customers {
 				WebFlux
 .....................................................................................
 
+What is Reactive Programming?
 
+  Reactive programming is kind of declarative programming,by coimbing many design patterns (Observerable,Iterable,functional programming concepts-pure function)
 
+Why reactive programming? or What is purpose of reactive programming?
 
+ Reactive programming helps to transfer data within application or across application
+ in async way.
+The reactive-stack web framework, Spring WebFlux, has been added to Spring 5. It is fully non-blocking, supports reactive streams back pressure, and runs on such servers as Netty, Undertow, and Servlet 3.1+ containers.
 
+Reactive Stack:
 
+ Reactive is new programming model, helps to build non blocking / async applications.
+ 
 
+Traditional web vs Reactive/NonBlocking  web application:
+.........................................................
 
+How we use threads,thats where the difference.
 
+In traditional web applications, every request is mapped against a separate dedicated thread - this is called as "Request Per thread Model"
 
+for eg in 1ms , the webserver recieves 100 requests, the web server will have 100 threads.
 
+Request Per thread model drawbacks:
 
+1.Operating system need to maintain so much threads, so that os need more memory, and also operating system need to do context switch a lot, so cpu power is used heavily..
 
+How to manange this?
 
+ We need less threads, thats where new technology was created called "non blocking and async"
 
+Non blocking arch brought  new threading model, where as having limited no of threads, we can achive maximum concurrency...
 
+Threads are reused by multiple request--response handling.
+....................................................................................
+			Spring and Nonblocking arch
+.....................................................................................
 
+Webflux is framework built on the top of "Project reactor", which is spring wrapper..
 
+WebFlux provides a feature to build async and non blocking apps.
 
+Webflux web server is not tomcat, rather we use "netty" server which is non blocking server..
 
+How to create non blocking/ webflux apps?
 
-
+Note:
+ you cant mix blocking and nonblocking dependencies in a single project...
 
 
 
