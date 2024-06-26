@@ -1042,7 +1042,7 @@ events
   Mono-fireevent-complete
 
  Flux publishes events one by one 
-   Flux wont be completed until last time
+   Flux wont be completed until last item
   FLux.just(1,2)
    flux- fire event with 1----consume
          fire event with 2...consume
@@ -1260,6 +1260,7 @@ pom.xml
 </project>
 .....................................................................................
 Database configuration in application.properties
+
 spring.application.name=springjparest
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driverClassName=org.h2.Driver
