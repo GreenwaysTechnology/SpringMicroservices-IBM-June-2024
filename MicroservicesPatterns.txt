@@ -400,6 +400,7 @@ Decompose by SubDomain:
 
 Core Pattern:
 1.Database Per Service Pattern
+
 2.Shared Database
 
 
@@ -417,7 +418,7 @@ Succssor Patterns
   CQRS - SELECT, INSERT,UPDATE,DELETE.
   API Composition
 
-Advance Data Management Pattern -Transactional Messaging Pattern   
+Advanced Data Management Pattern -Transactional Messaging Pattern   
 
 1.Transactional outbox
     2.Transactional log tailing
@@ -743,11 +744,6 @@ Steps:
 
 2.Pick up design pattern.
 .....................................................................................
-.....................................................................................
-				   Data 
-			Event Sourcing and Domain Events
-			   Event Driven Microservices
-....................................................................................
 
 
 

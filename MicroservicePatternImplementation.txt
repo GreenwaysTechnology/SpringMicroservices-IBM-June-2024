@@ -1,0 +1,762 @@
+
+			  Database Related Patterns
+
+		In Microservices,Managing data is most crictical.
+
+Patterns:
+
+1.Database per Service - each service has its own private database
+
+2.Shared database - services share a database
+
+3.Saga - use sagas, which a sequences of local transactions, to maintain data consistency across services
+
+4.Command-side replica - maintain a queryable replica of data in a service that implements a command
+
+5.API Composition - implement queries by invoking the services that own the data and performing an in-memory join
+
+6.CQRS - implement queries by maintaining one or more materialized views that can be efficiently queried
+
+7.Domain event - publish an event whenever data changes
+
+8.Event sourcing - persist aggregates as a sequence of events
+
+Transactional messaging
+........................
+How to publish messages as part of a database transaction?
+
+1.Transactional outbox
+2.Transaction log tailing
+3.Polling publisher
+		
+....................................................................................
+				Core Patterns In database
+
+
+1.Shared database - services share a database
+
+2.Database per Service - each service has its own private database
+
+....................................................................................
+			  Data base Per service Pattern
+.....................................................................................
+2.Database Per Service Pattern
+...............................
+  Each Service is going to have its own database and tables
+
+
+Advantage:
+1. loose coupling
+2  You can have any database your own choice
+
+Drawbacks
+1.If services need to co-ordinate each other in order to enable biz work flow-
+  Transactions now are very hard and selecting data from the multiple tables are also   hard
+
+Challanges:
+1.Transactions - insert , update,delete
+2.SQL Queries -  select,joins,subquries
+
+if i enable Database Per service pattern, how to handle transactions and quries?
+ It lead another design patterns
+
+  0.Event Sourcing Pattern | DomainEvents
+   |
+    1.SAGA - Transactions -  update,insert,delete 
+       SAGA also has some drawabacks
+	  -1.Transactional outbox
+	  -2.Transactional log tailing
+	  -3.Polling publisher
+   2.CQRS/API Composition - Querying data - select,joins
+....................................................................................
+			Event Sourcing and Domain Events
+			   Event Driven Microservices
+....................................................................................
+An Event-microservices architecture is an approach to software development where decoupled microservices are designed to communicate with one another when events occur.
+
+Event sourcing
+Domain event - Inspired From Domain Driven Design
+ 
+  Both are same , which are different from only based model we select.
+if you select DDD, you can follow designing "events" using domain events.
+
+       Event means in general "Message/Record/data/Object"
+
+
+  A service "command" typically needs to create/update/delete aggregates in the database and send messages/events to a message broker.
+
+Note: 
+command-verb-method - insert/update/delete
+aggregates - A graph of objects that can be treated as a unit. (From DDD) -table/entity.
+
+
+ "Event Sourcing is an alternative way to persist data". In contrast with "state-oriented" persistence that only keeps the latest version of the entity state, Event sourcing stores each state mutation as separate record called event.
+
+When user starts interaction , when making order...
+   
+ Order :                 Order :                Order
+  Number : 1220            Number : 1220         Number : 1220
+  status : STARTED  ---->  status :PENDING ----> status: CONFIRMED | REJECTED
+  total : 200               total : 200          total : 200
+  paid : 0                  paid: 0              paid : 5000
+   
+  
+UPDATE QUERY - status=STARTED
+UPDATE QUERY - status=PENDING
+UPDATE QUERY - status=CONFIRMED
+
+History of Transcation
+
+started    pending     confirmed
+ |
+------------------------------------------------------------------
+ |          |              |
+   
+log      log              log  ------>EVENT store -can be any db or brokers
+			  
+...................................................................................
+			How to implment event sourcing
+...................................................................................
+
+There are many ways to implement event sourcing?
+
+Using database you can record events - 
+    Eventsourcing with "eventStore as Database table"
+
+Using Message brokers(Kafka,RabbitMQ,IbmMq)
+   Eventsourcing with "eventStore as Message brokers"
+
+
+Implementation:
+
+Use Case:
+
+Mr Subramanian has a shop
+He sells electrnic items like mobile phones, laptops etc
+
+Implementation:
+
+Use Case:
+
+Mr Subramanian has a shop
+He is sells electrnic items like mobile phones, laptops etc
+He wants to keep track of the stock in his shop.
+
+
+App functionality:
+
+1.Add new stock
+2.Remove existing stock
+3.find current stock of particular item.
+
+Initally this app built using traditional way : without event sourcing pattern.
+
+There is a table stock table , when ever new product added stock is added or when ever product is removed(sold), stock is updated.
+
+when ever stock is added or removed current state updated.
+
+This same operation is done by another co worker of subramanian who is mr Ram.
+
+One day Subramanian got doubt something went wrong in the stock, now he realized existing system cant track what happened.
+
+ when ever new stock is added or removed existing one, we cant track it.
+
+He found a soultion to sove this issue by "Event Sourcing Pattern"
+
+You can capture user events and add them in "Event Store"
+
+
+Modling Events:
+"StockAddedEvent"
+"StockRemovedEvent"
+ 
+You can store these events in relational database or event platforms like kafka.
+
+Steps:
+
+pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.3.1</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.ibm</groupId>
+	<artifactId>eventsourcingusingdb</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>eventsourcingusingdb</name>
+	<description>Demo project for Spring Boot</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+Coding: Please refer the code base "eventsourcingusingdb"
+
+How to test;
+
+POST localhost:8080/stock
+
+{
+    "name":"IPhone",
+    "quantity":10,
+    "addedBy":"Ram"
+}
+
+
+GET localhost:8080/events?name=IPhone
+
+[
+    {
+        "eventId": 4,
+        "eventType": "STOCK_ADDED",
+        "entityId": "IPhone",
+        "eventData": "{\"name\":\"IPhone\",\"quantity\":34,\"user\":null}",
+        "eventTime": "2023-12-13T17:19:32.961802"
+    },
+    {
+        "eventId": 5,
+        "eventType": "STOCK_ADDED",
+        "entityId": "IPhone",
+        "eventData": "{\"name\":\"IPhone\",\"quantity\":34,\"user\":null}",
+        "eventTime": "2023-12-13T17:19:50.424197"
+    },
+    {
+        "eventId": 6,
+        "eventType": "STOCK_ADDED",
+        "entityId": "IPhone",
+        "eventData": "{\"name\":\"IPhone\",\"quantity\":10,\"user\":null}",
+        "eventTime": "2023-12-13T17:21:26.872839"
+    }
+]
+
+As of now how to store events with "Relational Database".
+
+Note: this is only demonstrate how to store events only... not storing stock data.
+..................................................................................
+.....................................................................................
+		  EventSourcing with External Events Store platforms
+.....................................................................................
+
+1.Kafka
+2.eventStoreDb
+3.CloudEventStore
+4.Eventuate Tram
+5.RabbitMQ
+etc....
+
+Kafka:
+......
+What is Kafka?
+  Apache Kafka is an open-source distributed event streaming platform.
+
+What is Event?
+   An Event is any type of action,incident,or change are "happening" or "just happened"
+for eg:
+  Now i am typing,Now i am teaching - happening
+  Just i had coffee,Just i received mail, just i clicked a link, just i searched product - happened.
+
+ "An Event is just remainder or notification of  your happenings or happened"
+
+Events In the Softwares Systems:
+................................
+Every Software system has concept of "logs"
+
+Log:
+  Recording current informations.
+ Logs are used in software to record activities of code.
+
+...webserver initalize.... time.....
+...webserver assigns port....
+...webserver assigns host...
+
+Logs are used to tracking,debuging,fixing errors etc..... 
+
+
+Imgaine i need  somebody or somthing should record every activity of my life from the early moring when i get up and till bed.
+
+  There is a system to record every events of your life that is called 
+			      Kafka
+
+	 Kafka is Event Processing Software , which stores and process events
+...................................................................................
+.....................................................................................
+			Kafka Basic  Architecture
+.....................................................................................
+
+How kafka has been implemented?
+
+   "Kafka is a software"
+   "Kafka is a file(Commit log file) processing software
+   "Kafka is written in java and scala" - Kafka is just java application
+   "In order to run Kafka we need JVM"
+
+How event is represented into kafka?
+
+	Event is just a message.
+        Every message has its own arch.
+        In Kafka the Event/Message is called as "Record".
+		Event(Record)
+
+Event====>Record----------Kafka---will store into log file...
+.....................................................................................
+			 Sending Messages(Events) to Broker
+.....................................................................................	
+				Topics
+....................................................................................
+
+What is Topic?
+  There are lot of events, we need to organize them in the system
+  Apache Kafka's most fundamental unit of organization is the topic.
+
+ Topic is just like table in the relational database.
+
+  As we discussed already, kafka just stores events in the log files.
+
+  We never write events into log file directly.
+
+  As a developer we caputure events, write them into "topic" , kafka writes into log file from the topic.
+
+  Topic is log of events, logs are easy to undestand
+
+ Topic is just simple data structure with well known semantics, they are append only.
+
+ When ever we write a message, it always goes on the end.
+
+ When you read message, from the logs, by "Seeking offset in the log".
+
+ Logs are fundamental durable things, Traditional Messaging systems have topics and queues which stores messages temporarily to buffer them between source and designation.
+
+ Since topics are logs, which always permenant.
+
+ You can delete directly log files not but not messages, but you purge messages.
+
+ You can store logs as short as to as long as years or even you can retain messages indefintely.
+
+Partition:
+..........
+
+ Breaking topic into multiple units called partitions.
+
+Segments:
+  Each partitions is broken up into multiple log files...
+.....................................................................................
+				 Kafka Broker
+.....................................................................................
+
+It is node or process which host kafka application, kafka app is java application.
+
+if you run multiple kakfa process(jvms) on single host or mutliple host or inside vm or containers... : cluster.
+
+Cluster means group of kafka process called broker.
+
+Kafka has two software:
+.......................
+
+1.Data plane - Where actual records are stored - Brokers
+2.Control Plane - which manages cluster- Cluster Manager
+
+Control Plane:
+1.Zookeeper - traditional control plan software.
+2.KRaft- modern control plan software
+.....................................................................................
+
+Kafka Distribution:
+
+1.Apache Kafka - core kafka -open source
+2.Confluent Kafka - Confluent is company who is running by kafka creators, who built Enter prise kafka - community,enterprise...
+.....................................................................................
+
+How to work with kafka?
+
+1.You kafka broker
+2.You need application written in any language - can talk to kafka
+
+Kafka provides cli tools to learn kafka core features, publishing,consuming etc....
+
+
+How to setup kafka?
+
+1.Desktop
+   Linux,windows
+2.Docker 
+3.Cloud
+.....................................................................................
+		Spring and Kafka - Event Driven Microservices
+.....................................................................................
+
+Objective:
+  Event Sourcing with Kafka..
+
+Publish event into kafka broker...
+
+Steps:
+
+1.start kafka.
+
+docker-compose -f docker-compose-confl.yml up
+
+
+2.Add kafka spring dependency
+       <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+3.KafkaTemplate
+   Object is used to publish event into kafka Topic.
+
+4.application.yml
+
+spring:
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  h2:
+    console:
+      enabled: true
+      path: /h2
+
+
+5.Coding:
+
+package com.sunlife.eventsourcing;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+public class EventService {
+
+    @Autowired
+    private KafkaTemplate<String, Object> template;
+
+    public void addEvent(StockAddedEvent event) throws JsonProcessingException {
+        EventRecord eventRecord = new EventRecord();
+        eventRecord.setEventData(new ObjectMapper().writeValueAsString(event.getStockDetails()));
+        eventRecord.setEventType(StockStatus.STOCK_ADDED.name());
+        eventRecord.setEventId(UUID.randomUUID().getMostSignificantBits());
+        eventRecord.setEntityId(event.getStockDetails().getName());
+        eventRecord.setEventTime(LocalDateTime.now());
+
+        CompletableFuture<SendResult<String, Object>> future = template.send("stock", eventRecord);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                System.out.println("Sent message=[" + eventRecord +
+                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            } else {
+                System.out.println("Unable to send message=[" +
+                        eventRecord + "] due to : " + ex.getMessage());
+            }
+        });
+    }
+
+    public void addEvent(StockRemovedEvent event) throws JsonProcessingException {
+        EventRecord eventRecord = new EventRecord();
+        eventRecord.setEventData(new ObjectMapper().writeValueAsString(event.getStockDetails()));
+        eventRecord.setEventType(StockStatus.STOCK_REMOVED.name());
+        eventRecord.setEventId(UUID.randomUUID().getMostSignificantBits());
+        eventRecord.setEntityId(event.getStockDetails().getName());
+        eventRecord.setEventTime(LocalDateTime.now());
+        CompletableFuture<SendResult<String, Object>> future = template.send("stock", eventRecord);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                System.out.println("Sent message=[" + eventRecord +
+                        "] with offset=[" + result.getRecordMetadata().offset() + "]");
+            } else {
+                System.out.println("Unable to send message=[" +
+                        eventRecord + "] due to : " + ex.getMessage());
+            }
+        });
+    }
+
+
+}
+package com.sunlife.eventsourcing;
+
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+public class EventRecord {
+    private long eventId;
+    private String eventType;
+    private String entityId;
+    private String eventData;
+    private LocalDateTime eventTime;
+}
+package com.sunlife.eventsourcing;
+
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+public class KafkaProducerConfig {
+
+    @Bean
+    public NewTopic createTopic() {
+        return new NewTopic("stock", 3, (short) 1);
+    }
+
+    @Bean
+    public Map<String, Object> producerConfig() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                JsonSerializer.class);
+        return props;
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        return new DefaultKafkaProducerFactory<>(producerConfig());
+    }
+
+    @Bean
+    public KafkaTemplate<String, Object> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
+}
+package com.sunlife.eventsourcing;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
+
+@Entity
+@Data
+public class Stock {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private String name;
+    private int quantity;
+    private String userName;
+
+}
+package com.sunlife.eventsourcing;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class StockAddedEvent implements StockEvent {
+    private  Stock stockDetails;
+}
+package com.sunlife.eventsourcing;
+
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@RestController
+public class StockController {
+    @Autowired
+    private EventService eventService;
+
+    @Autowired
+    private StockRepo repo;
+
+    @PostMapping("/stock")
+    public void addStock(@RequestBody Stock stockRequest) throws JsonProcessingException {
+        StockAddedEvent event = StockAddedEvent.builder().stockDetails(stockRequest).build();
+
+        List<Stock> existingStockList = repo.findByName(stockRequest.getName());
+
+        if (existingStockList != null && existingStockList.size() > 0) {
+
+            Stock existingStock = existingStockList.get(0);
+
+            int newQuantity = existingStock.getQuantity() + stockRequest.getQuantity();
+
+            existingStock.setQuantity(newQuantity);
+            existingStock.setUserName(stockRequest.getUserName());
+            repo.save(existingStock);
+
+        } else {
+
+            repo.save(stockRequest);
+        }
+        eventService.addEvent(event);
+    }
+
+    @DeleteMapping("/stock")
+    public void removeStock(@RequestBody Stock stock) throws JsonProcessingException {
+        StockRemovedEvent event = StockRemovedEvent.builder().stockDetails(stock).build();
+        int newQuantity = 0;
+
+        List<Stock> existingStockList = repo.findByName(stock.getName());
+
+        if (existingStockList != null && existingStockList.size() > 0) {
+
+            Stock existingStock = existingStockList.get(0);
+
+            newQuantity = existingStock.getQuantity() - stock.getQuantity();
+
+            if (newQuantity <= 0) {
+                repo.delete(existingStock);
+            } else {
+                existingStock.setQuantity(newQuantity);
+                existingStock.setUserName(stock.getUserName());
+                repo.save(existingStock);
+            }
+        }
+        eventService.addEvent(event);
+    }
+
+    @GetMapping("/stock")
+    public List<Stock> getStock(@RequestParam("name") String name) throws JsonProcessingException {
+        return repo.findByName(name);
+    }
+
+
+}
+package com.sunlife.eventsourcing;
+
+public interface StockEvent {
+}
+package com.sunlife.eventsourcing;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Builder
+@Data
+public class StockRemovedEvent implements StockEvent {
+    private Stock stockDetails;
+}
+
+package com.sunlife.eventsourcing;
+
+import java.util.List;
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface StockRepo extends CrudRepository<Stock, Integer> {
+
+    List<Stock> findByName(String name);
+}
+package com.sunlife.eventsourcing;
+
+public enum StockStatus {
+    STOCK_ADDED,
+    STOCK_REMOVED
+}
+.....................................................................................
+
+
+
+
+
+
