@@ -754,9 +754,855 @@ public enum StockStatus {
     STOCK_REMOVED
 }
 .....................................................................................
+....................................................................................
+			 Spring cloud Stream
+....................................................................................
+
+What is Spring Cloud Stream?
+
+ Spring Cloud Stream is a Spring module that merges Spring Integration (which implements integration patterns) with Spring Boot.
+
+The goal of this module is to allow the developer to focus solely on the business logic of event-driven applications, without worrying about the code to handle different types of message systems.
+
+In fact, with Spring Cloud Stream, you can write code to produce/consume messages on Kafka, but the same code would also work if you used RabbitMQ, AWS Kinesis, AWS SQS, Azure EventHubs, etc!
+
+Spring Cloud Stream is a framework for building highly scalable event-driven microservices connected with shared messaging systems.
+
+The framework provides a flexible programming model built on already established and familiar Spring idioms and best practices, including support for persistent pub/sub semantics, consumer groups, and stateful partitions.
+
+Spring Cloud Stream is based on Spring Cloud Function. Business logic can be written through simple functions.
+
+The classic three interfaces of Java are used:
+
+Supplier: a function that has output but no input; it is also called producer, publisher, source .
+Consumer: a function that has input but no output, it is also called subscriber or sink.
+Function: a function that has both input and output, is also called processor
+
+		
+				Spring Cloud Stream
+					 |
+ 			    Kafka Google Pub sub RabbitMQ			
+ 
+
+
+Binder Implementations:
+ Binder is bridge api which connects Messaging providers.
+
+RabbitMQ
+Apache Kafka
+Kafka Streams
+Amazon Kinesis
+Google PubSub (partner maintained)
+Solace PubSub+ (partner maintained)
+Azure Event Hubs (partner maintained)
+Azure Service Bus (partner maintained)
+AWS SQS (partner maintained)
+AWS SNS (partner maintained)
+Apache RocketMQ (partner maintained)
+
+The core building blocks of Spring Cloud Stream are:
+
+1.Destination Binders: Components responsible to provide integration with the external messaging systems.
+
+Destination Bindings: Bridge between the external messaging systems and application code (producer/consumer) provided by the end user.
+
+Message: The canonical data structure used by producers and consumers to communicate with Destination Binders (and thus other applications via external messaging systems).
+
+
+Spring Cloud Stream application Types
+
+1.Sources - java.util.function.Supplier - Publisher
+2.Sinks -java.util.function.Consumer  - Consumer
+3.Processors -java.util.function.Function - Processors(Both Publisher and Consumer)
+
+Modern Spring Cloud Stream bindings works with functional Style rather than annotation style.
+
+
+Two types of programming.
+
+1.Publising events automatically
+2.Publishing events manually.
+
+
+1.Publising events automatically
+
+=>Publisher 
+=>Consumer
+=>Processor
+
+Note: 
+ The publisher,consumers,processor are represented as "Functional Bean".
+
+By default we dont need any configurations related to connecting kakfa, providing topic name....
+
+
+Eg:
+
+create project with following dependency:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.3.1</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.ibm</groupId>
+	<artifactId>springcloudstream</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springcloudstream</name>
+	<description>Demo project for Spring Boot</description>
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+		<spring-cloud.version>2023.0.2</spring-cloud.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream-test-binder</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+spring cloud stream configurations
+
+- consumer and producer configuration
+- function function configuration.
+
+#Stream Configuration
+spring:
+  cloud:
+    function:
+      definition: stringSupplier;stringConsumer;
+    stream:
+      bindings:
+        stringSupplier-out-0:
+          destination: randomUUid-topic
+        stringConsumer-in-0:
+          destination: randomUUid-topic
+        stockEvent-out-0:
+          destination: inventory-topic
+        stockEvent-in-0:
+          destination: inventory-topic
+#Bindiner(Kafka) Configuration
+
+here 
+ bindings:
+  Name of the bindings: stringSupplier-out-0
+  destination : kafka topic name
+
+functions:
+   name of the functions are assigened to publish and consum
+
+
+How to publish and consume message automatically?
+
+package com.ibm;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+@SpringBootApplication
+public class SpringcloudstreamApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudstreamApplication.class, args);
+    }
+
+    //producer which sends messages via functional
+    //stringSupplier is function name , if you dont configure, then function name would be topic
+    //name
+    @Bean
+    public Supplier<UUID> stringSupplier() {
+        return () -> {
+            var uuid = UUID.randomUUID();
+            return uuid;
+        };
+    }
+
+	//Consumer
+
+    @Bean
+    public Consumer<UUID> stringConsumer() {
+        return uuid -> {
+            System.out.println("Received: " + uuid);
+        };
+    }
+}
+.....................................................................................
+		How to publish message via rest api using Spring Cloud Stream
+			 (Event Sourcing)
+.....................................................................................
+
+StreamBridge - Api used to publish message using rest api.
+
+application.yml
+#Stream Configuration
+spring:
+  cloud:
+    function:
+      definition: stringSupplier;stringConsumer;stockEventConsumer
+    stream:
+      bindings:
+        stringSupplier-out-0:
+          destination: randomUUid-topic
+        stringConsumer-in-0:
+          destination: randomUUid-topic
+        stockEvent-out-0:
+          destination: inventory-topic
+        stockEventConsumer-in-0:
+          destination: inventory-topic
+#Bindiner(Kafka) Configuration
+
+package com.ibm;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+@SpringBootApplication
+public class SpringcloudstreamApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringcloudstreamApplication.class, args);
+    }
+
+    //producer which sends messages via functional
+    //stringSupplier is function name , if you dont configure, then function name would be topic
+    //name
+    @Bean
+    public Supplier<UUID> stringSupplier() {
+        return () -> {
+            var uuid = UUID.randomUUID();
+            return uuid;
+        };
+    }
+
+	//Consumer
+
+    @Bean
+    public Consumer<UUID> stringConsumer() {
+        return uuid -> {
+            System.out.println("Received: " + uuid);
+        };
+    }
+
+    @Bean
+    public Consumer<Stock> stockEventConsumer() {
+        return stock -> {
+            System.out.println("Received: " + stock);
+        };
+    }
+}
+package com.ibm;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/publish")
+public class StockController {
+
+    @Autowired
+    private StreamBridge streamBridge;
+
+    @PostMapping
+    public String publish(@RequestBody Stock stock) {
+        streamBridge.send("stockEvent-out-0", stock);
+        return "Message Published";
+
+    }
+}
+.....................................................................................
+			Service communication
+....................................................................................
+
+Service Commmincations are done with two design patterns
+
+1.RPI
+  Technologies
+   REST
+   Graphql
+   Grpc
+   Apache Thirft
+
+2.Messaging
+  Technologies
+   Kafka
+   RabbitMQ
+
+Messigng loosly coupled, where as Rpi is tightly coupled
+
+Messaging async , where as rpi is sync
+
+Applications must have same protocal
+
+Spring and Messaging:
+  Spring-kafka 
+  Spring-cloud-stream
+
+RPI AND spring based communcation:
+
+REST to REST Service Communication:
+..................................
+The Spring Framework provides the following choices for making calls to REST endpoints:
+
+Blocking SyncApi 
+
+Annotation based
+..................................................................................
+1.RestTemplate - synchronous client with template method API.
+
+2.RestClient - synchronous client with a fluent API.
+................................................................................
+NonBlocking Api:
+3.WebClient - non-blocking, reactive client with fluent API.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+Interface Based:
+4.HTTP Interface - annotated interface with generated, dynamic proxy implementation.
+5.FeignClient Interface- declarative rest api calls -  eq HTTP Interface.
+....................................................................................
+				RestTemplate
+
+Actors:
+
+1.callee
+   The callee providing rest api
+2.caller
+   The caller is who is going to call api
+
+Callee:
+application.properties
+
+package com.ibm.hello;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class HelloApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HelloApplication.class, args);
+	}
+
+}
+package com.ibm.hello;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloController {
+
+    @GetMapping("hello")
+    public String sayHello() {
+        return "Hello";
+    }
+}
+
+Caller:
+.......
+package com.ibm;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class RestTemplateApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RestTemplateApplication.class, args);
+	}
+	@Bean
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+}
+
+package com.ibm;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+@RestController
+public class HelloController {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @GetMapping("/greet")
+    public ResponseEntity<String> sayHello(){
+        String url ="http://localhost:9000/hello";
+        ResponseEntity<String> response=  restTemplate.getForEntity(url,String.class);
+        return response;
+    }
+}
+.....................................................................................
+.....................................................................................
+			 RestClient- Modern Sync way of calling Rest api
+....................................................................................
+
+It is simple and alternate way to Rest Template.
+
+The RestClient is a synchronous HTTP client that offers a modern, fluent API. It offers an abstraction over HTTP libraries that allows for convenient conversion from Java object to HTTP request, and creation of objects from the HTTP response.
+
+Note: RestClient is available only Spring boot 3.2.x version.
+
+RestClient has two programming style:
+
+1.Fluent Api style
+2.Interface based Style
+
+
+Fluent Style Api:
+
+package dev.mycom.restclient.hello;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClient;
+
+@RestController
+public class HelloController {
+
+    private final RestClient restClient;
+
+    //Rest Client Object need to be created
+    public HelloController() {
+        restClient = RestClient.builder()
+                .baseUrl("http://localhost:9000")
+                .build();
+    }
+
+    @GetMapping("greet")
+    public String sayHello() {
+        return restClient.get().uri("/hello").retrieve().body(String.class);
+    }
+
+}
+
+Testing:
+ http://localhost:8080/greet
+
+................................................................................
+			How to talk to external rest api
+
+Talking to third party webservices from the microservice.
+
+I am going to talk to the "https://jsonplaceholder.typicode.com/"
+
+package dev.mycom.restclient.post;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+import java.util.List;
+
+@Service
+public class PostService {
+
+    private final RestClient restClient;
+
+    public PostService() {
+        restClient = RestClient.builder()
+                .baseUrl("https://jsonplaceholder.typicode.com")
+                .build();
+    }
+
+    List<Post> findAll() {
+        return restClient.get()
+                .uri("/posts")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<Post>>() {});
+    }
+
+    Post findById(int id) {
+        return restClient.get()
+                .uri("/posts/{id}", id)
+                .retrieve()
+                .body(Post.class);
+    }
+
+    Post create(Post post) {
+        return restClient.post()
+                .uri("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(post)
+                .retrieve()
+                .body(Post.class);
+    }
+
+
+    Post update(Integer id, Post post) {
+        return restClient.put()
+                .uri("/posts/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(post)
+                .retrieve()
+                .body(Post.class);
+    }
+
+
+    void delete(Integer id) {
+        restClient.delete()
+                .uri("/posts/{id}", id)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+}
+
+package dev.mycom.restclient.post;
+
+import dev.mycom.restclient.client.JsonPlaceholderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    @Autowired
+    private PostService postService;
+
+    @GetMapping("")
+    List<Post> findAll() {
+        return postService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    Post findById(@PathVariable Integer id) {
+        return postService.findById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    Post create(@RequestBody Post post) {
+        return postService.create(post);
+    }
+
+    @PutMapping("/{id}")
+    Post update(@PathVariable Integer id, @RequestBody Post post) {
+        return postService.update(id, post);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void delete(@PathVariable Integer id) {
+        postService.delete(id);
+    }
+
+}
+.....................................................................................
+                     Interface based programming
+
+In order to communicate to rest api
+
+Spring offers interface based implementation
+
+In Old Spring, annotation based
+ RestTemplate
+
+In Old Spring, interface based 
+  Spring Cloud OpenFeign
+
+What is OpenFeign:
+  Feign makes writing java http clients easier
+	This project provides OpenFeign integrations for Spring Boot apps through autoconfiguration and binding to the Spring Environment and other Spring programming model idioms.
+
+Feign is thrid party lib, spring integrated under spring cloud project.
+
+FeignClient:
+   It is old way of writing interface based implementation alternate to "restTemplate".
+
+
+Depedency:
+	<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-loadbalancer</artifactId>
+		</dependency>
 
 
 
+Interface:
+
+package com.openfeign;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient(value = "hello-service",url="http://localhost:8081")
+public interface HelloServiceFeignClient {
+    //api
+    @GetMapping("/hello")
+    ResponseEntity<String> hello();
+}
+
+EnableOpenFeign:
+package com.openfeign;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+@SpringBootApplication
+@EnableFeignClients
+public class OpenfeignApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(OpenfeignApplication.class, args);
+	}
+
+}
+
+Controller:
+package com.openfeign;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class FeignController {
+
+    @Autowired
+    private HelloServiceFeignClient helloServiceFeignClient;
+
+    @GetMapping("/greet")
+    public ResponseEntity<String> hello(){
+        String helloResponse = helloServiceFeignClient.hello().getBody();
+        return ResponseEntity.status(200).body(helloResponse);
+    }
+}
+
+Testing:
+http://localhost:8082/greet
+.....................................................................................
+			RestClient and interface
 
 
+In Fluent api, you have to write code using api chaining
+
+return restClient.get()
+                .uri("/posts")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<Post>>() {});
+
+
+Interface based programming, the above code written by spring automatically.
+
+Interface based programming is more readable than fluent api, but you have to write extra interface.
+
+Write Interface:
+package dev.mycom.restclient.client;
+
+import dev.mycom.restclient.post.Post;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.PostExchange;
+import org.springframework.web.service.annotation.PutExchange;
+
+import java.util.List;
+
+public interface JsonPlaceholderService {
+
+    @GetExchange("/posts")
+    List<Post> findAll();
+
+    @GetExchange("/posts/{id}")
+    Post findById(@PathVariable Integer id);
+
+    @PostExchange("/posts")
+    Post create(@RequestBody Post post);
+
+    @PutExchange("/posts/{id}")
+    Post update(@PathVariable Integer id, @RequestBody Post post);
+
+    @DeleteMapping("/posts/{id}")
+    void delete(@PathVariable Integer id);
+
+}
+
+Create bean for that interface
+package dev.mycom.restclient;
+
+import dev.mycom.restclient.client.JsonPlaceholderService;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+
+@SpringBootApplication
+public class Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
+
+	@Bean
+    JsonPlaceholderService jsonPlaceholderService() {
+		RestClient client = RestClient.create("https://jsonplaceholder.typicode.com");
+	    HttpServiceProxyFactory factory = HttpServiceProxyFactory
+				.builderFor(RestClientAdapter.create(client))
+				.build();
+	    return factory.createClient(JsonPlaceholderService.class);
+	}
+
+}
+
+Inject that Interface into Service or controller:
+
+Controller:
+package dev.mycom.restclient.post;
+
+import dev.mycom.restclient.client.JsonPlaceholderService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+
+    private final JsonPlaceholderService postService;
+
+    public PostController(JsonPlaceholderService postService) {
+        this.postService = postService;
+    }
+    @GetMapping("")
+    List<Post> findAll() {
+        return postService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    Post findById(@PathVariable Integer id) {
+        return postService.findById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    Post create(@RequestBody Post post) {
+        return postService.create(post);
+    }
+
+    @PutMapping("/{id}")
+    Post update(@PathVariable Integer id, @RequestBody Post post) {
+        return postService.update(id, post);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void delete(@PathVariable Integer id) {
+        postService.delete(id);
+    }
+
+}
+.....................................................................................
 
